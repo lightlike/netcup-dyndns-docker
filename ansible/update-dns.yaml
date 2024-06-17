@@ -1,0 +1,65 @@
+---
+- hosts: 127.0.0.1
+  connection: local
+  vars:
+    data_base_path: "/tmp/netcup-dns"
+    ipv4_path: "{{ data_base_path }}/IPv4"
+    ipv6_path: "{{ data_base_path }}/IPv6"
+
+  tasks:
+    - name: Create netcup directory if it does not exist
+      ansible.builtin.file:
+        path: "{{ data_base_path }}"
+        state: directory
+
+    - name: Get IPv4
+      vars:
+        do_check: "{{ lookup('env','IPv4') }}"
+      when: do_check != 'no'
+      ignore_errors: yes
+      ansible.builtin.get_url:
+        url: "{{ item }}"
+        dest: "{{ ipv4_path }}"
+      with_items:
+        - http://v4.ident.me/
+        - http://v4.tnedi.me/
+      register: result_v4
+
+    - name: Get IPv6
+      vars:
+        do_check: "{{ lookup('env','IPv6') }}"
+      when: do_check != 'no'
+      ignore_errors: yes
+      ansible.builtin.get_url:
+        url: "{{ item }}"
+        dest: "{{ ipv6_path }}"
+      with_items:
+        - http://v6.ident.me/
+        - http://v6.tnedi.me/
+      register: result_v6
+
+    - name: Create IPv4 Record
+      when: result_v4.changed
+      ignore_errors: yes
+      community.general.netcup_dns:
+        api_key: "{{ lookup('env','API_KEY') }}"
+        api_password: "{{ lookup('env','API_PASSWORD') }}"
+        customer_id: "{{ lookup('env','CUSTOMER_ID') }}"
+        domain: "{{ lookup('env','DOMAIN') }}"
+        record: "{{ item }}"
+        type: "A"
+        value: "{{ lookup('file', ipv4_path) }}"
+      with_items: "{{ lookup('env','RECORDS') | split }}"
+      
+    - name: Create IPv6 Record
+      when: result_v6.changed
+      ignore_errors: yes
+      community.general.netcup_dns:
+        api_key: "{{ lookup('env','API_KEY') }}"
+        api_password: "{{ lookup('env','API_PASSWORD') }}"
+        customer_id: "{{ lookup('env','CUSTOMER_ID') }}"
+        domain: "{{ lookup('env','DOMAIN') }}"
+        record: "{{ item }}"
+        type: "A"
+        value: "{{ lookup('file', ipv6_path) }}"
+      with_items: "{{ lookup('env','RECORDS') | split }}"
