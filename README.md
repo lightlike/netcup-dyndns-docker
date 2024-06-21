@@ -28,8 +28,8 @@ services:
             SCHEDULE: "*/10 * * * *"
             DOMAIN: "example.com"
             MODE: "@ *"
-            IPV4: "yes"
-            IPV6: "yes"
+            IPv4: "yes"
+            IPv6: "yes"
             CUSTOMER_ID: ${CUSTOMER_ID}
             API_KEY: ${API_KEY}
             API_PASSWORD: ${API_PASSWORD}
@@ -52,8 +52,8 @@ This is not supported and you have to know how to work with ansible.
 | SCHEDULE     | Cron schedule for executing ansible playbook<br>default: every 10 minutes<br>time between executions can be reduced but try not to reduce it to much.
 | DOMAIN       | The domain the values should be set to
 | MODE         | Subdomains the IPs should be set to (separated by space)<br>default: `@` and `*`
-| IPV4         | if IPv4 should be set<br>default: no
-| IPV6         | if IPv6 should be set<br>default: no
+| IPv4         | if IPv4 should be set<br>default: no
+| IPv6         | if IPv6 should be set<br>default: no
 | CUSTOMER_ID  | netcup customer id
 | API_KEY      | netcup API key
 | API_PASSWORD | netcup API password
