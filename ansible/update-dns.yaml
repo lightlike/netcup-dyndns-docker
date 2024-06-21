@@ -16,7 +16,7 @@
     - name: Get IPv4
       vars:
         do_check: "{{ lookup('env','IPv4') }}"
-      when: do_check != 'no'
+      when: do_check == 'yes'
       ignore_errors: yes
       ansible.builtin.get_url:
         url: "{{ item }}"
@@ -29,7 +29,7 @@
     - name: Get IPv6
       vars:
         do_check: "{{ lookup('env','IPv6') }}"
-      when: do_check != 'no'
+      when: do_check == 'yes'
       ignore_errors: yes
       ansible.builtin.get_url:
         url: "{{ item }}"
