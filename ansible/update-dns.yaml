@@ -13,11 +13,6 @@
         path: "{{ data_base_path }}"
         state: directory
 
-    - debug:
-        msg:
-          - "IPV4: {{ lookup('env','IPv4') }}"
-          - "IPV6: {{ lookup('env','IPv6') }}"
-
     - name: Get IPv4
       vars:
         do_check: "{{ lookup('env','IPv4') }}"
