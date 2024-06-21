@@ -49,6 +49,7 @@
         record: "{{ item }}"
         type: "A"
         value: "{{ lookup('file', ipv4_path) }}"
+        solo: yes
       with_items: "{{ lookup('env','RECORDS') | split }}"
       
     - name: Create IPv6 Record
@@ -60,6 +61,7 @@
         customer_id: "{{ lookup('env','CUSTOMER_ID') }}"
         domain: "{{ lookup('env','DOMAIN') }}"
         record: "{{ item }}"
-        type: "A"
+        type: "AAAA"
         value: "{{ lookup('file', ipv6_path) }}"
+        solo: yes
       with_items: "{{ lookup('env','RECORDS') | split }}"
