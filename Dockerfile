@@ -12,8 +12,13 @@ RUN apk add --no-cache \
 
 RUN pip install --no-cache --break-system-packages nc-dnsapi
 
-ENV ANSIBLE_STDOUT_CALLBACK=unixy
+# Ansible specific variables
+ENV ANSIBLE_STDOUT_CALLBACK=dense
 ENV ANSIBLE_LOAD_CALLBACK_PLUGINS=1
+ENV ANSIBLE_LOCALHOST_WARNING=False
+ENV ANSIBLE_INVENTORY_UNPARSED_WARNING=False
+
+# DynDNS Variables
 ENV RECORDS="* @"
 ENV SCHEDULE="*/10 * * * *"
 
