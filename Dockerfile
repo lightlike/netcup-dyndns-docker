@@ -13,8 +13,6 @@ RUN apk add --no-cache \
 RUN pip install --no-cache --break-system-packages nc-dnsapi
 
 # Ansible specific variables
-ENV ANSIBLE_STDOUT_CALLBACK=dense
-ENV ANSIBLE_LOAD_CALLBACK_PLUGINS=1
 ENV ANSIBLE_LOCALHOST_WARNING=False
 ENV ANSIBLE_INVENTORY_UNPARSED_WARNING=False
 
@@ -28,5 +26,5 @@ COPY ansible ansible
 COPY entrypoint.sh .
 RUN chmod 777 entrypoint.sh
 
-ENTRYPOINT [ "/netcup-dns/entrypoint.sh" ]
+ENTRYPOINT [ "entrypoint.sh" ]
 CMD [ "crond", "-f" ]
