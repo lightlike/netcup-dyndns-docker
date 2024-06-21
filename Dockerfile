@@ -19,7 +19,7 @@ WORKDIR /netcup-dns
 
 COPY ansible/update-dns.yaml ansible
 COPY entrypoint.sh .
-RUN chmod +x entrypoint.sh
+RUN chmod 777 entrypoint.sh
 
 ENTRYPOINT [ "/netcup-dns/entrypoint.sh" ]
 CMD [ "crond", "-f" ]
