@@ -17,7 +17,7 @@ ENV SCHEDULE="*/10 * * * *"
 
 WORKDIR /netcup-dns
 
-COPY ansible/update-dns.yaml ansible
+COPY ansible ansible
 COPY entrypoint.sh .
 RUN chmod 777 entrypoint.sh
 
