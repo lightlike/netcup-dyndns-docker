@@ -9,6 +9,7 @@
 
   tasks:
     - name: Create netcup directory if it does not exist
+      no_log: true
       ansible.builtin.file:
         path: "{{ data_base_path }}"
         state: directory

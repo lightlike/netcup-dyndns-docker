@@ -15,6 +15,7 @@ RUN pip install --no-cache --break-system-packages nc-dnsapi
 # Ansible specific variables
 ENV ANSIBLE_LOCALHOST_WARNING=False
 ENV ANSIBLE_INVENTORY_UNPARSED_WARNING=False
+ENV ANSIBLE_DISPLAY_SKIPPED_HOSTS=False
 
 # DynDNS Variables
 ENV RECORDS="@ *"
