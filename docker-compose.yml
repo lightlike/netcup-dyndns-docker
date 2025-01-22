@@ -1,0 +1,21 @@
+services:
+  netcup-dyndns:
+    container_name: netcup-dyndns
+    network_mode: "host"
+    environment:
+      SCHEDULE: "* * * * *"
+      DOMAIN: "otterfreun.de"
+      MODE: "@ *"
+      IPv4: "yes"
+      IPv6: "no"
+      CUSTOMER_ID: ${CUSTOMER_ID:-invalid}
+      API_KEY: ${API_KEY:-invalid}
+      API_PASSWORD: ${API_PASSWORD:-invalid}
+    restart: unless-stopped
+    build:
+      context: .
+    develop:
+      watch:
+        - action: sync
+          path: ./ansible
+          target: /netcup-dns/ansible

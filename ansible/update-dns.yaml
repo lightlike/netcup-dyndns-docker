@@ -14,56 +14,70 @@
         path: "{{ data_base_path }}"
         state: directory
 
-    - name: Get IPv4
-      vars:
-        do_check: "{{ lookup('env','IPv4') }}"
-      when: do_check == 'yes'
-      ignore_errors: yes
-      ansible.builtin.get_url:
-        url: "{{ item }}"
-        dest: "{{ ipv4_path }}"
-      with_items:
-        - http://v4.ident.me/
-        - http://v4.tnedi.me/
-      register: result_v4
+    - name: Get IPs
+      block:
+        - name: Get IPv4
+          vars:
+            do_check: "{{ lookup('env','IPv4') }}"
+          when: do_check == 'yes'
+          ignore_errors: yes
+          ansible.builtin.get_url:
+            url: "{{ item }}"
+            dest: "{{ ipv4_path }}"
+          with_items:
+            - http://v4.ident.me/
+            - http://v4.tnedi.me/
+          register: result_v4
 
-    - name: Get IPv6
-      vars:
-        do_check: "{{ lookup('env','IPv6') }}"
-      when: do_check == 'yes'
-      ignore_errors: yes
-      ansible.builtin.get_url:
-        url: "{{ item }}"
-        dest: "{{ ipv6_path }}"
-      with_items:
-        - http://v6.ident.me/
-        - http://v6.tnedi.me/
-      register: result_v6
+        - name: Get IPv6
+          vars:
+            do_check: "{{ lookup('env','IPv6') }}"
+          when: do_check == 'yes'
+          ignore_errors: yes
+          ansible.builtin.get_url:
+            url: "{{ item }}"
+            dest: "{{ ipv6_path }}"
+          with_items:
+            - http://v6.ident.me/
+            - http://v6.tnedi.me/
+          register: result_v6
 
-    - name: Create IPv4 Record
-      when: result_v4.changed
-      ignore_errors: yes
-      community.general.netcup_dns:
-        api_key: "{{ lookup('env','API_KEY') }}"
-        api_password: "{{ lookup('env','API_PASSWORD') }}"
-        customer_id: "{{ lookup('env','CUSTOMER_ID') }}"
-        domain: "{{ lookup('env','DOMAIN') }}"
-        record: "{{ item }}"
-        type: "A"
-        value: "{{ lookup('file', ipv4_path) }}"
-        solo: yes
-      with_items: "{{ lookup('env','RECORDS') | split }}"
-      
-    - name: Create IPv6 Record
-      when: result_v6.changed
-      ignore_errors: yes
-      community.general.netcup_dns:
-        api_key: "{{ lookup('env','API_KEY') }}"
-        api_password: "{{ lookup('env','API_PASSWORD') }}"
-        customer_id: "{{ lookup('env','CUSTOMER_ID') }}"
-        domain: "{{ lookup('env','DOMAIN') }}"
-        record: "{{ item }}"
-        type: "AAAA"
-        value: "{{ lookup('file', ipv6_path) }}"
-        solo: yes
-      with_items: "{{ lookup('env','RECORDS') | split }}"
+    - name: Edit netcup IPv4 entries
+      block:
+        - name: Create IPv4 Record
+          when: result_v4.changed
+          community.general.netcup_dns:
+            api_key: "{{ lookup('env','API_KEY') }}"
+            api_password: "{{ lookup('env','API_PASSWORD') }}"
+            customer_id: "{{ lookup('env','CUSTOMER_ID') }}"
+            domain: "{{ lookup('env','DOMAIN') }}"
+            record: "{{ item }}"
+            type: "A"
+            value: "{{ lookup('file', ipv4_path) }}"
+            solo: yes
+          with_items: "{{ lookup('env','RECORDS') | split }}"
+      rescue:
+        - name: Cleanup current IPs to ensure next execution
+          ansible.builtin.file:
+            path: "{{ ipv4_path }}"
+            state: absent
+          
+    - name: Edit netcup IPv6 entries
+      block:
+        - name: Create IPv6 Record
+          when: result_v6.changed
+          community.general.netcup_dns:
+            api_key: "{{ lookup('env','API_KEY') }}"
+            api_password: "{{ lookup('env','API_PASSWORD') }}"
+            customer_id: "{{ lookup('env','CUSTOMER_ID') }}"
+            domain: "{{ lookup('env','DOMAIN') }}"
+            record: "{{ item }}"
+            type: "AAAA"
+            value: "{{ lookup('file', ipv6_path) }}"
+            solo: yes
+          with_items: "{{ lookup('env','RECORDS') | split }}"
+      rescue:
+        - name: Cleanup current IPs to ensure next execution
+          ansible.builtin.file:
+            path: "{{ ipv6_path }}"
+            state: absent
