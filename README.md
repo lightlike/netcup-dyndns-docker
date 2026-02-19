@@ -8,7 +8,7 @@
 This container uses cron and ansible to periodically set dns entries for the current device.
 
 > This is meant to be a (mostly) drop-in replacement for [b2un0/docker-netcup-dyndns](https://github.com/b2un0/docker-netcup-dyndns)
-> You should just need to change the value for `MODE` from `both` to `@ *`.
+> You should just need to change `MODE` to `RECORDS` and the value from `both` to `@ *`.
 
 This in itself does the same as the original but come with the folling improvements:
 - fallback identity server when the original is down
@@ -27,7 +27,7 @@ services:
         environment:
             SCHEDULE: "*/10 * * * *"
             DOMAIN: "example.com"
-            MODE: "@ *"
+            RECORDS: "@ *"
             IPv4: "yes"
             IPv6: "yes"
             CUSTOMER_ID: ${CUSTOMER_ID}
@@ -51,7 +51,7 @@ This is not supported and you have to know how to work with ansible.
 |:------------:|:-------- |
 | SCHEDULE     | Cron schedule for executing ansible playbook<br>default: every 10 minutes<br>time between executions can be reduced but try not to reduce it to much.
 | DOMAIN       | The domain the values should be set to
-| MODE         | Subdomains the IPs should be set to (separated by space)<br>default: `@` and `*`
+| RECORDS      | Subdomains the IPs should be set to (separated by space)<br>default: `@` and `*`
 | IPv4         | if IPv4 should be set<br>default: no
 | IPv6         | if IPv6 should be set<br>default: no
 | CUSTOMER_ID  | netcup customer id
@@ -67,18 +67,21 @@ These Websites are located in Germany if that may couse trouble for you.
 ### IPv6
 
 Docker by default does not support outgoing requests using IPv6.
-This can be enabled by following this guide: https://docs.docker.com/config/daemon/ipv6/
-If you do not need IPv6 for anything else, you can also just set:
+IPv6 can be enabled like so:
 ```yaml
 version: '2'
 services:
     netcup-dyndns:
         container_name: netcup-dyndns
-        network_mode: "host"
+        networks:
+          - default
         environment:
             ...
         restart: unless-stopped
         image: ghcr.io/lightlike/netcup-dyndns:latest
+networks:
+  default:
+    enable_ipv6: true
 ```
 That should not cause any problems as this container does not expose any ports.
 
